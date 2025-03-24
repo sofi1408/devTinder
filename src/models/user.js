@@ -2,7 +2,10 @@ const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
     firstName: {
-        type: String
+        type: String,
+        required: true,
+        min: 3,
+        max: 50,
     },
     lastName: {
         type: String
@@ -22,6 +25,7 @@ const userSchema = new mongoose.Schema({
 })
 
 //creating the model
-
-const userModel = mongoose.model("User", userSchema);
-module.exports = userModel;
+//keep the name capital as it is a like a class , so when we are gonna create a new user we will
+//create instance of this.
+const User = mongoose.model("User", userSchema);
+module.exports = User;

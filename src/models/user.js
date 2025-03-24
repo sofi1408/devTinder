@@ -41,6 +41,9 @@ const userSchema = new mongoose.Schema({
     gender: {
         type: String
     },
+    photoUrl: {
+        type: String
+    },
     about: {
         type: String,
         default: "Hello from Dev Tinder"

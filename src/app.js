@@ -15,7 +15,8 @@ app.post('/signup', async (req, res) => {
      res.status(200).send("user created successfully")
    }
    catch(err){
-    res.status(400).send('error creating user', err.message);
+    console.log("error is: ", err);
+    res.status(400).send('error creating user' + err.message);
    };
 });
 
@@ -32,7 +33,7 @@ app.get('/user', async (req, res) => {
     }
    }
    catch(err){
-    res.status(400).send('Something went wrong', err.message);
+    res.status(400).send('Something went wrong' + err.message);
    }
  
 })
@@ -45,7 +46,7 @@ app.get('/feed', async (req, res) => {
         res.status(200).send(users)
     }
     catch(err){
-        res.send('Error fetching users..', err.message);
+        res.send('Error fetching users..' + err.message);
     }
 })
 
@@ -68,7 +69,10 @@ app.delete('/user', async (req, res) => {
 app.patch('/user/:id', async(req, res) => {
     try{
         const userId = req.params.id;
-        await User.findByIdAndUpdate(userId, {firstName: req.body.firstName})
+        await User.findByIdAndUpdate(userId, {firstName: req.body.firstName}, {
+            runValidators: true,
+            returnDocument: "after",
+        })
         res.status(200).send("user updated successfully...")
     }
     catch(err){

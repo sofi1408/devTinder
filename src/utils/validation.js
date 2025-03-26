@@ -1,6 +1,8 @@
 const validator = require('validator');
 const User = require("../models/user");
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
 const validateSignUpData = (req) => {
     const {firstName, lastName, emailId, password} = req.body
@@ -17,7 +19,7 @@ const validateSignUpData = (req) => {
     }
 }
 
-const validateSignInData = async (req) => {
+const validateSignInData = async (req, res) => {
     const {emailId, password} = req.body;
     if(!emailId || !password){
         throw new Error("Please provide mandatory fields")
@@ -33,6 +35,12 @@ const validateSignInData = async (req) => {
       const isValidPassword = await bcrypt.compare(password, user.password )
       if(!isValidPassword){
         throw new Error("Invalid Credentials")
+      }
+      else{
+        //create a jwt token
+        const token = jwt.sign({id: user._id}, process.env.JWT_SECRET , { expiresIn: '7d' }); 
+        //store it into the cookie
+        res.cookie("token", token);
       }
     }
 }

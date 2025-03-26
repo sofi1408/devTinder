@@ -2,13 +2,19 @@ const express = require("express");
 const app = express();
 const port = 4357;
 
-const {connectDB} = require('./config/database');
 const User = require("./models/user");
 const bcrypt = require('bcrypt');
+// const jwt = require('jsonwebtoken')
+const cookieParser = require('cookie-parser');
+
+const {connectDB} = require('./config/database');
+const {userAuth} = require('./middlewares/auth')
 
 const {validateSignUpData, validateSignInData} = require('./utils/validation')
 
 app.use(express.json())
+app.use(cookieParser());
+require('dotenv').config();
 
 
 app.post('/signup', async (req, res) => {
@@ -40,7 +46,7 @@ app.post('/signup', async (req, res) => {
 
 app.get('/signin', async(req, res) => {
     try{
-        await validateSignInData(req);
+        await validateSignInData(req, res);
         res.status(200).send("Login Successful")
     }
     catch(err){
@@ -48,7 +54,7 @@ app.get('/signin', async(req, res) => {
     };
 })
 
-// get user by emai
+// get user by email
 app.get('/user', async (req, res) => {
    try{
     const email = req.body.emailId;
@@ -64,6 +70,17 @@ app.get('/user', async (req, res) => {
     res.status(400).send('Something went wrong' + err.message);
    }
  
+})
+
+//get user profile
+app.get('/profile', userAuth, (req, res) => {
+    try{
+        const {user} = req;
+        res.status(200).send(user)
+    }
+    catch(err){
+        res.status(400).send('Error: ' + err.message);
+    };
 })
 
 //feed api to get all the users

@@ -4,21 +4,49 @@ const port = 4357;
 
 const {connectDB} = require('./config/database');
 const User = require("./models/user");
+const bcrypt = require('bcrypt');
+
+const {validateSignUpData, validateSignInData} = require('./utils/validation')
 
 app.use(express.json())
 
 
 app.post('/signup', async (req, res) => {
-   const user = new User(req.body)
-   try{
+ try{
+   //validation of data
+   validateSignUpData(req);
+
+   //encrypt password
+   const {firstName, lastName, emailId, password} = req.body;
+
+   //with this passwordhash is generated but we cannot decrypt it.
+   const passwordHash = await bcrypt.hash(password, 10)
+
+   //const user = new User(req.body) - never trust request body and pass it like this.
+   //always pass the required fields only to prevent it from attacks.
+   const user = new User({
+    firstName,
+    lastName,
+    emailId,
+    password: passwordHash
+   })
      await user.save();
      res.status(200).send("user created successfully")
    }
    catch(err){
-    console.log("error is: ", err);
-    res.status(400).send('error creating user' + err.message);
+    res.status(400).send('Error: ' + err.message);
    };
 });
+
+app.get('/signin', async(req, res) => {
+    try{
+        await validateSignInData(req);
+        res.status(200).send("Login Successful")
+    }
+    catch(err){
+        res.status(400).send('Error: ' + err.message);
+    };
+})
 
 // get user by emai
 app.get('/user', async (req, res) => {

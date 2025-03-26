@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 var validator = require('validator');
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+
+require('dotenv').config();
 
 const userSchema = new mongoose.Schema({
     firstName: {
@@ -52,6 +56,16 @@ const userSchema = new mongoose.Schema({
         type: [String],
     }
 }, {timestamps: true})
+
+userSchema.methods.getJWT = function(){
+    const token = jwt.sign({id: this._id}, process.env.JWT_SECRET , { expiresIn: '7d' });
+    return token;
+}
+
+userSchema.methods.validatePassword = async function(userInputPassword){
+    const isValidPassword = await bcrypt.compare(userInputPassword, this.password )
+    return isValidPassword;
+}
 
 //creating the model
 //keep the name capital as it is a like a class , so when we are gonna create a new user we will
